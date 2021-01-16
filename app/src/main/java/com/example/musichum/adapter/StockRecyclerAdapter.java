@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -60,11 +61,9 @@ public class StockRecyclerAdapter extends RecyclerView.Adapter<StockRecyclerAdap
                         if(response.code() == 200){
                             holder.btAddToCart.setText("REMOVE FROM CART");
                         }
-//                        else{
-//                            Toast.makeText(StockRecyclerAdapter.this, "Error " +response.code() +". Please try again later.", Toast.LENGTH_LONG).show();
-//                        }
                         else{
                             holder.btAddToCart.setText("FAILED");
+                            Toast.makeText(v.getContext(), "Error " +response.code() +". Please try again later.", Toast.LENGTH_LONG).show();
 
                             try {
                                 wait(5000);
@@ -107,7 +106,7 @@ public class StockRecyclerAdapter extends RecyclerView.Adapter<StockRecyclerAdap
 
                     @Override
                     public void onFailure(Call<Void> call, Throwable t) {
-
+                        Toast.makeText(v.getContext(), "Something went wrong. Please try again later.", Toast.LENGTH_LONG);
                     }
                 });
             }

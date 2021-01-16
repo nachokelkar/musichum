@@ -1,9 +1,12 @@
 package com.example.musichum.network;
 
 import com.example.musichum.models.CartItem;
+import com.example.musichum.models.InventoryItem;
 import com.example.musichum.models.LoginHistory;
 import com.example.musichum.models.LoginToken;
 import com.example.musichum.models.OrderHistory;
+import com.example.musichum.models.Product;
+import com.example.musichum.models.SearchItem;
 import com.example.musichum.models.User;
 
 import java.util.List;
@@ -15,6 +18,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface IApiCalls {
 
@@ -27,16 +31,16 @@ public interface IApiCalls {
     Call<LoginToken> loginUser(String userName, String password);
 
     @GET("/users/{userName}")
-    Call<User> getUserDetails(@Path("userName") String userName, @Body String usertoken);
+    Call<User> getUserDetails(@Path("userName") String userName, @Query("usertoken") String usertoken);
 
     @PUT("/users/{userName}/update")
     Call<Void> updateUser(@Path("userName") String username, @Body User user);
 
     @GET("users/{userName}/history/login/{page}")
-    Call<List<LoginHistory>> getLoginHistory(@Path("userName") String userName, @Path("page") int page, @Body String usertoken);
+    Call<List<LoginHistory>> getLoginHistory(@Path("userName") String userName, @Path("page") int page, @Query("usertoken") String usertoken);
 
     @GET("users/{userName}/history/order/{page}")
-    Call<List<OrderHistory>> getOrderHistory(@Path("userName") String userName, @Path("page") int page, @Body String usertoken);
+    Call<List<OrderHistory>> getOrderHistory(@Path("userName") String userName, @Path("page") int page, @Query("usertoken") String usertoken);
 
 
     // CART MICROSERVICE
@@ -45,12 +49,32 @@ public interface IApiCalls {
     Call<Void> addToCart(@Path("userName") String userName, @Body String type, @Body String id, @Body String did, @Body String usertoken);
 
     @GET("/cart/{userName}/get")
-    Call<List<CartItem>> getCart(@Path("userName") String userName, @Body String usertoken);
+    Call<List<CartItem>> getCart(@Path("userName") String userName, @Query("usertoken") String usertoken);
 
     @DELETE("/cart/{userName}/delete")
     Call<Void> deleteFromCart(@Path("userName") String userName, @Body String type, @Body String id, @Body String did, @Body String usertoken);
 
     @POST("/cart/{userName}/checkout")
     Call<Void> checkout(@Path("userName") String userName, @Body String usertoken);
+
+    @GET("/cart/{type}/inventory/{id}")
+    Call<List<InventoryItem>> getInventory(@Path("id") String id, @Path("type") String type);
+
+
+    // PRODUCT MICROSERVICE
+
+    @GET("/{pid}")
+    Call<Product> getProduct(@Path("pid") String pid);
+
+
+    // RECOMMENDATIONS MICROSERVICE
+
+    @GET("/recommendations")
+    Call<List<Product>> getRecommendations();
+
+    // SEARCH MICROSERVICE
+
+    @GET("/search")
+    Call<List<SearchItem>> search(@Body String searchQuery);
 
 }

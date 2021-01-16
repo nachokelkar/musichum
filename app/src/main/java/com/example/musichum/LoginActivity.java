@@ -21,13 +21,16 @@ import retrofit2.Retrofit;
 
 
 public class LoginActivity extends AppCompatActivity {
-    SharedPreferences sharedPreferences = getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
-    SharedPreferences.Editor editor = sharedPreferences.edit();
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        sharedPreferences =  getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
         if(sharedPreferences.getString("isLoggedIn", "") != null){
             finish();

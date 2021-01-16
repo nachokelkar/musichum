@@ -1,6 +1,7 @@
 package com.example.musichum;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.EditText;
@@ -53,6 +54,7 @@ public class UpdateActivity extends AppCompatActivity {
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     if(response.code() == 200){
                         Toast.makeText(UpdateActivity.this, "Successfully updated", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(UpdateActivity.this, UserActivity.class));
                     }
                     else{
                         Toast.makeText(UpdateActivity.this, "Error " +response.code() +". Please try again later", Toast.LENGTH_LONG).show();

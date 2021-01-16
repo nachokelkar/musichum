@@ -23,9 +23,9 @@
         android:background="@color/white">
 
         <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="80sp"
-            android:layout_height="80sp"
+            android:id="@+id/iv_coverArt"
+            android:layout_width="100sp"
+            android:layout_height="100sp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
@@ -34,14 +34,15 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tv_albumName"
+            android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="Title"
+            android:textSize="20sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toTopOf="@+id/imageView" />
+            app:layout_constraintStart_toEndOf="@+id/iv_coverArt"
+            app:layout_constraintTop_toTopOf="@+id/iv_coverArt" />
 
         <TextView
             android:id="@+id/tv_artistName"
@@ -49,8 +50,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="Artist"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/tv_albumName" />
+            app:layout_constraintStart_toEndOf="@+id/iv_coverArt"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title" />
 
         <TextView
             android:id="@+id/tv_albumName"
@@ -58,16 +59,16 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="Album"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
+            app:layout_constraintStart_toEndOf="@+id/iv_coverArt"
             app:layout_constraintTop_toBottomOf="@+id/tv_artistName" />
 
-        <Button
-            android:id="@+id/bt_viewSongPage"
+        <TextView
+            android:id="@+id/tv_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:text="View song"
+            android:text="Type"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -75,13 +76,20 @@
             android:id="@+id/tv_cost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:text="PRICE"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bt_viewSongPage" />
+            android:layout_marginEnd="8dp"
+            android:text="Cost"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_coverArt"
+            app:layout_constraintEnd_toEndOf="parent" />
 
+        <Button
+            android:id="@+id/bt_viewItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="view"
+            app:layout_constraintBottom_toTopOf="@+id/tv_cost"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_type" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

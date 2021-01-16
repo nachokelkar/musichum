@@ -1,8 +1,11 @@
 package com.example.musichum.adapter;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,8 +15,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.musichum.R;
 import com.example.musichum.models.CartItem;
+import com.example.musichum.network.IApiCalls;
+import com.example.musichum.networkmanager.RetrofitBuilder;
 
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapter.ViewHolder> {
     private final List<CartItem> cartItemList;
@@ -44,6 +54,30 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
                 .load(cartItem.getCoverUrl())
                 .placeholder(R.drawable.close)
                 .into(holder.ivCover);
+
+        holder.btRemove.setOnClickListener(view -> {
+            Retrofit retrofit = RetrofitBuilder.getInstance();
+            IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
+            SharedPreferences sharedPreferences = view.getContext().getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
+
+            Call<Void> response = iApiCalls.deleteFromCart(sharedPreferences.getString("isLoggedIn", ""), cartItem.getType(), cartItem.getId(), cartItem.getDid(), sharedPreferences.getString("usertoken", ""));
+
+            response.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+
+                    // todo : Either refresh activity or notify update of cart list
+
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+
+                    // todo : return appropriate error
+
+                }
+            });
+        });
     }
 
     public interface CartItemInterface{
@@ -63,6 +97,7 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
         private final TextView tvAlbum;
         private final TextView tvType;
         private final TextView tvCost;
+        private final Button btRemove;
 
         public ViewHolder(View view){
             super(view);
@@ -73,6 +108,7 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
             tvAlbum = view.findViewById(R.id.tv_albumName);
             tvType = view.findViewById(R.id.tv_type);
             tvCost = view.findViewById(R.id.tv_cost);
+            btRemove = view.findViewById(R.id.bt_removeItem);
         }
     }
 

@@ -95,7 +95,6 @@ public class UserActivity extends AppCompatActivity implements LoginHistoryAdapt
         responses.enqueue(new Callback<List<LoginHistory>>() {
             @Override
             public void onResponse(Call<List<LoginHistory>> call, Response<List<LoginHistory>> response) {
-                // todo: null check
                 if(response == null){
                     Toast.makeText(UserActivity.this, "Couldn't fetch login data", Toast.LENGTH_LONG).show();
                 }
@@ -127,7 +126,6 @@ public class UserActivity extends AppCompatActivity implements LoginHistoryAdapt
         responses.enqueue(new Callback<List<OrderHistory>>() {
             @Override
             public void onResponse(Call<List<OrderHistory>> call, Response<List<OrderHistory>> response) {
-                // todo: null check
                 if(response == null){
                     Toast.makeText(UserActivity.this, "Couldn't fetch order data", Toast.LENGTH_LONG).show();
                 }

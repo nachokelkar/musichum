@@ -65,23 +65,32 @@ public class CartActivity extends AppCompatActivity implements CartRecyclerAdapt
     }
 
     private void populateCart(List<CartItem> cartItems){
+        sharedPreferences = getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
         String username = sharedPreferences.getString("isLoggedIn", "");
         String usertoken = sharedPreferences.getString("usertoken", "");
+
+        findViewById(R.id.bt_home).setOnClickListener(view -> {
+            startActivity(new Intent(this, HomeActivity.class));
+        });
 
         Call<List<CartItem>> responses = iApiCalls.getCart(username, usertoken);
 
         responses.enqueue(new Callback<List<CartItem>>() {
             @Override
             public void onResponse(Call<List<CartItem>> call, Response<List<CartItem>> response) {
-                // todo: null check
-                for(CartItem cartItem : response.body()){
-                    cartItems.add(cartItem);
+                if(response.code() == 200 && response.body() != null){
+                    for (CartItem cartItem : response.body()) {
+                        cartItems.add(cartItem);
+                    }
+                    findViewById(R.id.bt_checkout).setEnabled(true);
+                    RecyclerView rvCart = findViewById(R.id.rv_cart);
+                    CartRecyclerAdapter cartRecyclerAdapter = new CartRecyclerAdapter(cartItems, CartActivity.this);
+                    rvCart.setLayoutManager(new LinearLayoutManager(CartActivity.this));
+                    rvCart.setAdapter(cartRecyclerAdapter);
                 }
-                findViewById(R.id.bt_checkout).setEnabled(true);
-                RecyclerView rvCart = findViewById(R.id.rv_cart);
-                CartRecyclerAdapter cartRecyclerAdapter = new CartRecyclerAdapter(cartItems, CartActivity.this);
-                rvCart.setLayoutManager(new LinearLayoutManager(CartActivity.this));
-                rvCart.setAdapter(cartRecyclerAdapter);
+                else{
+                    Toast.makeText(CartActivity.this, "Error " + response.code(), Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
@@ -102,7 +111,7 @@ public class CartActivity extends AppCompatActivity implements CartRecyclerAdapt
 
             case TYPE_SONG:
                 intent = new Intent(this, SongActivity.class);
-                intent.putExtra(AID, cartItem.getId());
+                intent.putExtra(PID, cartItem.getId());
                 break;
 
             default:

@@ -27,7 +27,7 @@ public class CheckoutActivity extends AppCompatActivity {
                 });
                 break;
             default:
-                textView.setText("ERROR");
+                textView.setText("ERROR " +responseCode);
                 Toast.makeText(this, "Please press the back button", Toast.LENGTH_LONG).show();
                 Button bt_end = findViewById(R.id.bt_end);
                 bt_end.setText("Back");

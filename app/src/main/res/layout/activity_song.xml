@@ -89,7 +89,6 @@
                 android:id="@+id/tv_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Rating"
                 app:layout_constraintBottom_toTopOf="@+id/sb_preview"
                 app:layout_constraintEnd_toEndOf="@+id/sb_preview" />
 
@@ -108,11 +107,11 @@
                 android:id="@+id/tv_genre"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Genre"
                 app:layout_constraintBottom_toTopOf="@+id/sb_preview"
                 app:layout_constraintEnd_toStartOf="@+id/tv_rating" />
 
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_stock"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"

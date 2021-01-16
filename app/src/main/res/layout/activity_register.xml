@@ -32,7 +32,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="username"
-            android:inputType="textPersonName" />
+            android:inputType="textFilter"
+            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890_"/>
 
         <EditText
             android:id="@+id/et_email"
@@ -94,4 +95,14 @@
         app:layout_constraintEnd_toEndOf="@+id/bt_googleSignIn"
         app:layout_constraintStart_toStartOf="@+id/bt_googleSignIn"
         app:layout_constraintTop_toBottomOf="@+id/bt_googleSignIn" />
+
+    <Button
+        android:id="@+id/bt_loginInstead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Login"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

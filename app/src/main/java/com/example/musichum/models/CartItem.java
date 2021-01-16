@@ -2,12 +2,22 @@ package com.example.musichum.models;
 
 public class CartItem {
     String type;
-    String pid;
+    String id;
     String name;
     String artist;
     String albumName;
     String coverUrl;
     String did;
+
+    public int getCost() {
+        return cost;
+    }
+
+    int cost;
+
+    public void setCost(int cost) {
+        this.cost = cost;
+    }
 
     public String getType() {
         return type;
@@ -17,12 +27,12 @@ public class CartItem {
         this.type = type;
     }
 
-    public String getPid() {
-        return pid;
+    public String getId() {
+        return id;
     }
 
-    public void setPid(String pid) {
-        this.pid = pid;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -65,13 +75,4 @@ public class CartItem {
         this.did = did;
     }
 
-    public String getCost() {
-        return cost;
-    }
-
-    public void setCost(String cost) {
-        this.cost = cost;
-    }
-
-    String cost;
 }

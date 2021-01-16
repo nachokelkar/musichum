@@ -57,6 +57,10 @@ public class RegisterActivity extends AppCompatActivity {
 
         GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
+        findViewById(R.id.bt_loginInstead).setOnClickListener(view -> {
+            startActivity(new Intent(this, LoginActivity.class));
+        });
+
         findViewById(R.id.bt_registerButton).setOnClickListener(view -> {
             if(!isEmpty(et_email) && !isEmpty(et_username) && !isEmpty(et_password)){
                 User user = new User();
@@ -73,10 +77,9 @@ public class RegisterActivity extends AppCompatActivity {
                     public void onResponse(Call<Void> call, Response<Void> response) {
                         if(response.code() == 200){
                             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                            finish();
                         }
                         else{
-                            Toast.makeText(RegisterActivity.this, "Registration error " +response +".\nPlease try again in some time.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(RegisterActivity.this, "Registration error " +response.code() +".\nPlease try again in some time.", Toast.LENGTH_LONG).show();
                         }
                     }
 

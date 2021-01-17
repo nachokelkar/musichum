@@ -32,9 +32,6 @@ public class LoginActivity extends AppCompatActivity {
         sharedPreferences =  getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
-        if(sharedPreferences.getString("isLoggedIn", "") != null){
-            finish();
-        }
         EditText etUserName = findViewById(R.id.et_username);
         EditText etPassword = findViewById(R.id.et_password);
 

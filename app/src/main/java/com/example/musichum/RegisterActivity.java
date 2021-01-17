@@ -2,6 +2,7 @@ package com.example.musichum;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,17 +19,31 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Task;
+import com.spotify.sdk.android.auth.AuthorizationRequest;
+import com.spotify.sdk.android.auth.AuthorizationClient;
+import com.spotify.sdk.android.auth.AuthorizationResponse;
+import com.spotify.android.appremote.api.ConnectionParams;
+import com.spotify.android.appremote.api.Connector;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity  {
 
     private static final int RC_SIGN_IN = 9001;
+
+    private static final String CLIENT_ID = "c317e8cc724d454e8c636c9cfaecbb6e";
+
+    private static final String REDIRECT_URI = "http://localhost:8888";
+
+    private static final int REQUEST_CODE = 1337;
+
+    private SpotifyAppRemote mSpotifyAppRemote;
+
 
     EditText et_username;
     EditText et_email;
@@ -60,6 +75,13 @@ public class RegisterActivity extends AppCompatActivity {
         findViewById(R.id.bt_loginInstead).setOnClickListener(view -> {
             startActivity(new Intent(this, LoginActivity.class));
         });
+
+//        AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
+//        builder.setScopes(new String[]{"user-read-private"});
+//        AuthorizationRequest request = builder.build();
+//        AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
+
+
 
         findViewById(R.id.bt_registerButton).setOnClickListener(view -> {
             if(!isEmpty(et_email) && !isEmpty(et_username) && !isEmpty(et_password)){
@@ -108,6 +130,39 @@ public class RegisterActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> signInAccountTask= GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(signInAccountTask);
         }
+
+//        else if (requestCode == REQUEST_CODE) {
+//            AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, data);
+//            response.
+//
+//            if (response.getType() == AuthorizationResponse.Type.TOKEN) {
+//                ConnectionParams connectionParams =
+//                        new ConnectionParams.Builder(CLIENT_ID)
+//                                .setRedirectUri(REDIRECT_URI)
+//                                .showAuthView(true)
+//                                .build();
+//
+//                SpotifyAppRemote.connect(this, connectionParams,
+//                        new Connector.ConnectionListener() {
+//
+//                            @Override
+//                            public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+//                                mSpotifyAppRemote = spotifyAppRemote;
+//                                Log.d("MainActivity", "Connected! Yay!");
+//
+//                                // Now you can start interacting with App Remote
+//                                mSpotifyAppRemote.getUserApi().;
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Throwable throwable) {
+//                                Log.e("MainActivity", throwable.getMessage(), throwable);
+//
+//                                // Something went wrong when attempting to connect! Handle errors here
+//                            }
+//                        });
+//            }
+//        }
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask){
@@ -121,8 +176,12 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void updateUI(@Nullable GoogleSignInAccount account){
         if(account!=null){
+            et_email = findViewById(R.id.et_email);
+            et_firstName = findViewById(R.id.et_firstName);
+            et_lastName = findViewById(R.id.et_lastName);
+
             et_email.setText(account.getEmail());
-            et_firstName.setText(account.getDisplayName());
+            et_firstName.setText(account.getGivenName());
             et_lastName.setText(account.getFamilyName());
 
             findViewById(R.id.bt_googleSignIn).setVisibility(View.GONE);

@@ -31,6 +31,7 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
 
+    RecyclerView recyclerView;
     SearchRecyclerAdapter searchRecyclerAdapter;
 
     @Override
@@ -62,12 +63,6 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
         List<SearchItem> recommendations = new ArrayList<>();
         generateRecommendations(recommendations);
 
-        RecyclerView recyclerView = findViewById(R.id.rv_searchResults);
-        searchRecyclerAdapter = new SearchRecyclerAdapter(recommendations, HomeActivity.this);
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(searchRecyclerAdapter);
-
         findViewById(R.id.bt_searchButton).setOnClickListener(view -> {
             Retrofit retrofit = RetrofitBuilder.getInstance();
             IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
@@ -96,7 +91,7 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
 
                 @Override
                 public void onFailure(Call<List<SearchItem>> call, Throwable t) {
-
+                    Toast.makeText(HomeActivity.this, "Error making search call.", Toast.LENGTH_LONG).show();
                 }
             });
         });
@@ -122,6 +117,12 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
                     searchItem.setLowestCost(product.getLowestCost());
                     searchItemList.add(searchItem);
                 }
+
+                recyclerView = findViewById(R.id.rv_searchResults);
+                searchRecyclerAdapter = new SearchRecyclerAdapter(searchItemList, HomeActivity.this);
+
+                recyclerView.setLayoutManager(new LinearLayoutManager(HomeActivity.this));
+                recyclerView.setAdapter(searchRecyclerAdapter);
             }
 
             @Override
@@ -130,6 +131,7 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
                 searchItem.setTitle("ERROR");
                 searchItem.setArtist("Could not fetch recommendations");
                 searchItem.setLowestCost(0);
+
                 searchItemList.add(searchItem);
             }
         });

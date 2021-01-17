@@ -15,6 +15,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
@@ -25,7 +26,8 @@ public interface IApiCalls {
     // USER MICROSERVICE
 
     @POST("/users/add")
-    Call<Void> addUser(User user);
+    @Headers("Content-Type: application/json")
+    Call<Void> addUser(@Body User user);
 
     @POST("/users/login")
     Call<LoginToken> loginUser(String userName, String password);
@@ -75,6 +77,6 @@ public interface IApiCalls {
     // SEARCH MICROSERVICE
 
     @GET("/search")
-    Call<List<SearchItem>> search(@Body String searchQuery);
+    Call<List<SearchItem>> search(@Query("searchquery") String searchQuery);
 
 }

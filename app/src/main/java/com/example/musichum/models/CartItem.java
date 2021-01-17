@@ -8,12 +8,20 @@ public class CartItem {
     String albumName;
     String coverUrl;
     String did;
+    int cost;
+    String songUrl;
+
+    public String getSongUrl() {
+        return songUrl;
+    }
+
+    public void setSongUrl(String songUrl) {
+        this.songUrl = songUrl;
+    }
 
     public int getCost() {
         return cost;
     }
-
-    int cost;
 
     public void setCost(int cost) {
         this.cost = cost;

@@ -15,6 +15,7 @@ import com.example.musichum.constants.Constants;
 import com.example.musichum.models.CartItem;
 import com.example.musichum.network.IApiCalls;
 import com.example.musichum.networkmanager.RetrofitBuilder;
+import com.example.musichum.networkmanager.TempCartRetrofitBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class CartActivity extends AppCompatActivity implements CartRecyclerAdapter.CartItemInterface, Constants {
-    Retrofit retrofit = RetrofitBuilder.getInstance();
+    Retrofit retrofit = TempCartRetrofitBuilder.getInstance();
     IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;

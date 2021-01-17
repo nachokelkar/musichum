@@ -89,26 +89,19 @@
                 android:id="@+id/tv_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@+id/sb_preview"
-                app:layout_constraintEnd_toEndOf="@+id/sb_preview" />
-
-            <SeekBar
-                android:id="@+id/sb_preview"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
                 android:layout_marginEnd="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_year" />
+                android:text="5 ★"
+                app:layout_constraintBottom_toBottomOf="@+id/bt_media"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
                 android:id="@+id/tv_genre"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@+id/sb_preview"
-                app:layout_constraintEnd_toStartOf="@+id/tv_rating" />
+                android:layout_marginEnd="16dp"
+                android:text="hip hop"
+                app:layout_constraintBottom_toTopOf="@+id/tv_rating"
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_stock"
@@ -119,7 +112,17 @@
                 android:layout_marginEnd="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/sb_preview" />
+                app:layout_constraintTop_toBottomOf="@+id/bt_media" />
+
+            <Button
+                android:id="@+id/bt_media"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Play preview"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_year" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

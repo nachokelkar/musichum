@@ -1,6 +1,8 @@
 package com.example.musichum.adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,15 +10,18 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.musichum.CartActivity;
 import com.example.musichum.R;
 import com.example.musichum.models.CartItem;
 import com.example.musichum.network.IApiCalls;
 import com.example.musichum.networkmanager.RetrofitBuilder;
+import com.example.musichum.networkmanager.TempCartRetrofitBuilder;
 
 import java.util.List;
 
@@ -56,7 +61,7 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
                 .into(holder.ivCover);
 
         holder.btRemove.setOnClickListener(view -> {
-            Retrofit retrofit = RetrofitBuilder.getInstance();
+            Retrofit retrofit = TempCartRetrofitBuilder.getInstance();
             IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
             SharedPreferences sharedPreferences = view.getContext().getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
 
@@ -66,15 +71,13 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
 
-                    // todo : Either refresh activity or notify update of cart list
-
+                    view.getContext().startActivity(new Intent(view.getContext(), CartActivity.class));
+                    ((Activity)(view.getContext())).finish();
                 }
 
                 @Override
                 public void onFailure(Call<Void> call, Throwable t) {
-
-                    // todo : return appropriate error
-
+                    Toast.makeText(view.getContext(), "Error removing item. Please try again later.", Toast.LENGTH_LONG);
                 }
             });
         });

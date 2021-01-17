@@ -90,22 +90,27 @@ public class RegisterActivity extends AppCompatActivity  {
                 user.setLastName(et_lastName.getText().toString().trim());
                 user.setPassword(et_password.getText().toString().trim());
 
+//                retrofit = RetrofitBuilder.getInstance();
+
                 Call<Void> response = iApiCalls.addUser(user);
+
+                Log.d("RegisterUser", "onCreate: Call ready");
 
                 response.enqueue(new Callback<Void>() {
                     @Override
                     public void onResponse(Call<Void> call, Response<Void> response) {
                         if(response.code() == 200){
+                            Toast.makeText(view.getContext(), "Registration successful", Toast.LENGTH_LONG).show();
                             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                         }
                         else{
-                            Toast.makeText(RegisterActivity.this, "Registration error " +response.code() +".\nPlease try again in some time.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(view.getContext(), "Registration error " +response.code() +".\nPlease try again in some time.", Toast.LENGTH_LONG).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Void> call, Throwable t) {
-                        Toast.makeText(RegisterActivity.this, "Registration error.\nPlease try again in some time.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(view.getContext(), "Registration error.\nPlease try again in some time.", Toast.LENGTH_LONG).show();
                     }
                 });
             }

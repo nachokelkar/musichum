@@ -4,10 +4,10 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class RetrofitBuilder {
+public class TempCartRetrofitBuilder {
     private static Retrofit instance;
 
-    private RetrofitBuilder() {
+    private TempCartRetrofitBuilder() {
         // private constructor
     }
 
@@ -15,7 +15,7 @@ public class RetrofitBuilder {
         if (instance == null) {
             synchronized (com.example.musichum.networkmanager.RetrofitBuilder.class) {
                 if (instance == null) {
-                    instance = new Retrofit.Builder().baseUrl("http://10.177.1.144:8001")
+                    instance = new Retrofit.Builder().baseUrl("http://10.177.1.144:8002")
                             .addConverterFactory(GsonConverterFactory.create()).client(new OkHttpClient()).build();
                 }
             }

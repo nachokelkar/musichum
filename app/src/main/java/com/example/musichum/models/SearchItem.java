@@ -8,7 +8,25 @@ public class SearchItem {
     String genre;
     String album;
     String title;
-    float lowestCost;
+    float cost;
+    String songUrl;
+    String distId;
+
+    public String getDistId() {
+        return distId;
+    }
+
+    public void setDistId(String distId) {
+        this.distId = distId;
+    }
+
+    public String getSongUrl() {
+        return songUrl;
+    }
+
+    public void setSongUrl(String songUrl) {
+        this.songUrl = songUrl;
+    }
 
     public String getType() {
         return type;
@@ -66,11 +84,11 @@ public class SearchItem {
         this.title = title;
     }
 
-    public float getLowestCost() {
-        return lowestCost;
+    public float getCost() {
+        return cost;
     }
 
-    public void setLowestCost(float lowestCost) {
-        this.lowestCost = lowestCost;
+    public void setCost(float cost) {
+        this.cost = cost;
     }
 }

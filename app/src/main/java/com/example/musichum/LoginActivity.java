@@ -11,8 +11,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musichum.models.LoginToken;
+import com.example.musichum.models.LoginWrapper;
 import com.example.musichum.network.IApiCalls;
 import com.example.musichum.networkmanager.RetrofitBuilder;
+import com.facebook.login.Login;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,15 +48,25 @@ public class LoginActivity extends AppCompatActivity {
             else{
                 Retrofit retrofit = RetrofitBuilder.getInstance();
                 IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
-                Call<LoginToken> response = iApiCalls.loginUser(etUserName.getText().toString().trim(), etPassword.getText().toString().trim());
+
+                LoginWrapper loginWrapper = new LoginWrapper();
+                loginWrapper.setPassword(etPassword.getText().toString().trim());
+                loginWrapper.setUserName(etUserName.getText().toString().trim());
+
+                Call<LoginToken> response = iApiCalls.loginUser(loginWrapper);
                 response.enqueue(new Callback<LoginToken>() {
                     @Override
                     public void onResponse(Call<LoginToken> call, Response<LoginToken> response) {
                         if(response.code() == 200){
                             editor.putString("isLoggedIn", etUserName.getText().toString().trim());
+                            Log.d("LOGIN", "onResponse: Saved username as " +sharedPreferences.getString("isLoggedIn", ""));
                             editor.putString("usertoken", response.body().getUsertoken());
+                            editor.commit();
                             Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+
+                            startActivity(intent);
+                            finish();
                         }
                         else if(response.code() == 401){
                             Toast.makeText(LoginActivity.this, "Incorrect username or password", Toast.LENGTH_LONG).show();

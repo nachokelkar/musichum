@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import com.example.musichum.models.Product;
 import com.example.musichum.models.SearchItem;
 import com.example.musichum.network.IApiCalls;
 import com.example.musichum.networkmanager.RetrofitBuilder;
+import com.example.musichum.networkmanager.TempSearchRetrofitBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,14 +47,17 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
         if(!sharedPreferences.contains("isLoggedIn")){
             editor.putString("isLoggedIn", ":" +UUID.randomUUID().toString());
             editor.putString("usertoken", "GUEST");
+            editor.commit();
         }
 
         findViewById(R.id.bt_userAccount).setOnClickListener(view -> {
-            if(sharedPreferences.getString("isLoggedIn", "").startsWith(":")){
-                startActivity(new Intent(this, UserActivity.class));
+            if(sharedPreferences.getString("isLoggedIn", "").startsWith(":") || sharedPreferences.getString("isLoggedIn", "").isEmpty()){
+                Log.d("HOME", "onCreate: NOT LOGGED IN");
+                startActivity(new Intent(this, RegisterActivity.class));
             }
             else {
-                startActivity(new Intent(this, RegisterActivity.class));
+                Log.d("HOME", "onCreate: LOGGED IN: " +sharedPreferences.getString("isLoggedIn", ""));
+                startActivity(new Intent(this, UserActivity.class));
             }
         });
 
@@ -64,7 +69,7 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
         generateRecommendations(recommendations);
 
         findViewById(R.id.bt_searchButton).setOnClickListener(view -> {
-            Retrofit retrofit = RetrofitBuilder.getInstance();
+            Retrofit retrofit = TempSearchRetrofitBuilder.getInstance();
             IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
 
             EditText etSearch = findViewById(R.id.et_searchQuery);
@@ -80,6 +85,7 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
                             searchItems.add(searchItem);
                         }
 
+                        recyclerView = findViewById(R.id.rv_searchResults);
                         searchRecyclerAdapter = new SearchRecyclerAdapter(searchItems, HomeActivity.this);
                         recyclerView.setLayoutManager(new LinearLayoutManager(HomeActivity.this));
                         recyclerView.setAdapter(searchRecyclerAdapter);
@@ -106,23 +112,25 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
         response.enqueue(new Callback<List<Product>>() {
             @Override
             public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
-                for(Product product : response.body()){
-                    SearchItem searchItem = new SearchItem();
-                    searchItem.setAlbum(product.getAlbum());
-                    searchItem.setArtist(product.getArtist());
-                    searchItem.setCoverUrl(product.getCoverUrl());
-                    searchItem.setGenre(product.getGenre());
-                    searchItem.setId(product.getPid());
-                    searchItem.setTitle(product.getTitle());
-                    searchItem.setLowestCost(product.getLowestCost());
-                    searchItemList.add(searchItem);
+                if(response.body()!=null){
+                    for (Product product : response.body()) {
+                        SearchItem searchItem = new SearchItem();
+                        searchItem.setAlbum(product.getAlbum());
+                        searchItem.setArtist(product.getArtist());
+                        searchItem.setCoverUrl(product.getCoverUrl());
+                        searchItem.setGenre(product.getGenre());
+                        searchItem.setId(product.getPid());
+                        searchItem.setTitle(product.getTitle());
+                        searchItem.setCost(product.getLowestCost());
+                        searchItemList.add(searchItem);
+                    }
+
+                    recyclerView = findViewById(R.id.rv_searchResults);
+                    searchRecyclerAdapter = new SearchRecyclerAdapter(searchItemList, HomeActivity.this);
+
+                    recyclerView.setLayoutManager(new LinearLayoutManager(HomeActivity.this));
+                    recyclerView.setAdapter(searchRecyclerAdapter);
                 }
-
-                recyclerView = findViewById(R.id.rv_searchResults);
-                searchRecyclerAdapter = new SearchRecyclerAdapter(searchItemList, HomeActivity.this);
-
-                recyclerView.setLayoutManager(new LinearLayoutManager(HomeActivity.this));
-                recyclerView.setAdapter(searchRecyclerAdapter);
             }
 
             @Override
@@ -130,7 +138,7 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
                 SearchItem searchItem = new SearchItem();
                 searchItem.setTitle("ERROR");
                 searchItem.setArtist("Could not fetch recommendations");
-                searchItem.setLowestCost(0);
+                searchItem.setCost(0);
 
                 searchItemList.add(searchItem);
             }
@@ -159,7 +167,9 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
         intent.putExtra(COVER_URL, searchItem.getCoverUrl());
         intent.putExtra(ALBUM_NAME, searchItem.getAlbum());
         intent.putExtra(ARTIST, searchItem.getArtist());
-        intent.putExtra(COST, searchItem.getLowestCost());
+        intent.putExtra(COST, searchItem.getCost());
+        intent.putExtra(SONG_URL, searchItem.getSongUrl());
+        intent.putExtra(DIST_ID, searchItem.getDistId());
 
         startActivity(intent);
     }

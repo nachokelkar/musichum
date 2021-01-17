@@ -1,6 +1,7 @@
 package com.example.musichum.adapter;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,6 @@ import com.example.musichum.HomeActivity;
 import com.example.musichum.R;
 import com.example.musichum.SongActivity;
 import com.example.musichum.constants.Constants;
-import com.example.musichum.models.CartItem;
 import com.example.musichum.models.SearchItem;
 
 import java.util.List;
@@ -42,7 +42,8 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         SearchItem searchItem = searchItems.get(position);
-        holder.tvCost.setText((int) searchItem.getLowestCost());
+
+        holder.tvCost.setText(searchItem.getCost()+"");
         holder.tvType.setText(searchItem.getType());
         holder.tvAlbum.setText(searchItem.getAlbum());
         holder.tvArtist.setText(searchItem.getArtist());
@@ -73,7 +74,9 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
             intent.putExtra(COVER_URL, searchItem.getCoverUrl());
             intent.putExtra(ALBUM_NAME, searchItem.getAlbum());
             intent.putExtra(ARTIST, searchItem.getArtist());
-            intent.putExtra(COST, searchItem.getLowestCost());
+            intent.putExtra(COST, searchItem.getCost());
+            intent.putExtra(SONG_URL, searchItem.getSongUrl());
+            intent.putExtra(DIST_ID, searchItem.getDistId());
 
             v.getContext().startActivity(intent);
 

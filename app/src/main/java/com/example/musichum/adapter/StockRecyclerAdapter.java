@@ -15,6 +15,7 @@ import com.example.musichum.R;
 import com.example.musichum.models.InventoryItem;
 import com.example.musichum.network.IApiCalls;
 import com.example.musichum.networkmanager.RetrofitBuilder;
+import com.example.musichum.networkmanager.TempCartRetrofitBuilder;
 
 import java.util.List;
 
@@ -44,10 +45,10 @@ public class StockRecyclerAdapter extends RecyclerView.Adapter<StockRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         InventoryItem inventoryItem = inventoryItems.get(position);
-        holder.tvDistName.setText(inventoryItem.getDistName());
+        holder.tvDistName.setText(inventoryItem.getDid());
         holder.tvCost.setText((int) inventoryItem.getCost());
 
-        Retrofit retrofit = RetrofitBuilder.getInstance();
+        Retrofit retrofit = TempCartRetrofitBuilder.getInstance();
         IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
 
         holder.btAddToCart.setOnClickListener(v -> {

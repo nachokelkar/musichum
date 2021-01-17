@@ -5,7 +5,6 @@ public class InventoryItem {
     String id;
     String did;
     float cost;
-    String distName;
 
     public String getDid() {
         return did;
@@ -39,11 +38,4 @@ public class InventoryItem {
         this.cost = cost;
     }
 
-    public String getDistName() {
-        return distName;
-    }
-
-    public void setDistName(String distName) {
-        this.distName = distName;
-    }
 }

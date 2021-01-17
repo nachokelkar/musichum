@@ -2,7 +2,10 @@ package com.example.musichum;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,7 +22,9 @@ import com.example.musichum.models.InventoryItem;
 import com.example.musichum.models.Product;
 import com.example.musichum.network.IApiCalls;
 import com.example.musichum.networkmanager.RetrofitBuilder;
+import com.example.musichum.networkmanager.TempCartRetrofitBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +40,9 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
     String pid;
     float cost;
     String coverUrl;
+    String songUrl;
+    String did;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Retrofit retrofit = RetrofitBuilder.getInstance();
@@ -50,12 +58,20 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
         cost = getIntent().getFloatExtra(COST, -1);
         artist = getIntent().getStringExtra(ARTIST);
         album = getIntent().getStringExtra(ALBUM_NAME);
+        songUrl = getIntent().getStringExtra(SONG_URL);
+        did = getIntent().getStringExtra(DIST_ID);
+
 
         TextView tvTitle = findViewById(R.id.tv_title);
         TextView tvArtist = findViewById(R.id.tv_artistName);
         TextView tvAlbum = findViewById(R.id.tv_albumName);
         TextView year = findViewById(R.id.tv_year);
         ImageView ivCover = findViewById(R.id.iv_coverArt);
+        String songURL = songUrl;
+
+        findViewById(R.id.bt_media).setOnClickListener(view -> {
+
+        });
 
         Glide.with(this)
                 .load(coverUrl)
@@ -94,14 +110,11 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
 
         List<InventoryItem> inventoryItemList = new ArrayList<>();
         generateInventory(inventoryItemList, pid);
-        RecyclerView rvDistributors = findViewById(R.id.rv_stock);
-        StockRecyclerAdapter stockRecyclerAdapter = new StockRecyclerAdapter(inventoryItemList, SongActivity.this);
-        rvDistributors.setLayoutManager(new LinearLayoutManager(this));
-        rvDistributors.setAdapter(stockRecyclerAdapter);
+
     }
 
     private void generateInventory(List<InventoryItem> inventoryItems, String pid){
-        Retrofit retrofit = RetrofitBuilder.getInstance();
+        Retrofit retrofit = TempCartRetrofitBuilder.getInstance();
         IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
 
         Call<List<InventoryItem>> responses = iApiCalls.getInventory(pid, TYPE_SONG);
@@ -112,6 +125,11 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
                     for(InventoryItem inventoryItem : response.body()){
                         inventoryItems.add(inventoryItem);
                     }
+
+                    RecyclerView rvDistributors = findViewById(R.id.rv_stock);
+                    StockRecyclerAdapter stockRecyclerAdapter = new StockRecyclerAdapter(inventoryItems, SongActivity.this);
+                    rvDistributors.setLayoutManager(new LinearLayoutManager(SongActivity.this));
+                    rvDistributors.setAdapter(stockRecyclerAdapter);
                 }
                 else{
                     Toast.makeText(SongActivity.this, "Error " +response.code(), Toast.LENGTH_LONG).show();
@@ -120,6 +138,17 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
 
             @Override
             public void onFailure(Call<List<InventoryItem>> call, Throwable t) {
+
+                InventoryItem inventoryItem = new InventoryItem();
+                inventoryItem.setDid(did);
+                inventoryItem.setCost(cost);
+
+                inventoryItems.add(inventoryItem);
+                RecyclerView rvDistributors = findViewById(R.id.rv_stock);
+                StockRecyclerAdapter stockRecyclerAdapter = new StockRecyclerAdapter(inventoryItems, SongActivity.this);
+                rvDistributors.setLayoutManager(new LinearLayoutManager(SongActivity.this));
+                rvDistributors.setAdapter(stockRecyclerAdapter);
+
                 Toast.makeText(SongActivity.this, "Error fetching distributors.\nPlease try again later.", Toast.LENGTH_LONG).show();
             }
         });

@@ -2,8 +2,10 @@ package com.example.musichum.network;
 
 import com.example.musichum.models.CartItem;
 import com.example.musichum.models.InventoryItem;
+import com.example.musichum.models.InventoryResponse;
 import com.example.musichum.models.LoginHistory;
 import com.example.musichum.models.LoginToken;
+import com.example.musichum.models.LoginWrapper;
 import com.example.musichum.models.OrderHistory;
 import com.example.musichum.models.Product;
 import com.example.musichum.models.SearchItem;
@@ -30,7 +32,8 @@ public interface IApiCalls {
     Call<Void> addUser(@Body User user);
 
     @POST("/users/login")
-    Call<LoginToken> loginUser(String userName, String password);
+    @Headers("Content-Type: application/json")
+    Call<LoginToken> loginUser(@Body LoginWrapper loginWrapper);
 
     @GET("/users/{userName}")
     Call<User> getUserDetails(@Path("userName") String userName, @Query("usertoken") String usertoken);
@@ -38,11 +41,11 @@ public interface IApiCalls {
     @PUT("/users/{userName}/update")
     Call<Void> updateUser(@Path("userName") String username, @Body User user);
 
-    @GET("users/{userName}/history/login/{page}")
-    Call<List<LoginHistory>> getLoginHistory(@Path("userName") String userName, @Path("page") int page, @Query("usertoken") String usertoken);
+    @GET("users/{userName}/history/login")
+    Call<List<LoginHistory>> getLoginHistory(@Path("userName") String userName, @Query("usertoken") String usertoken);
 
-    @GET("users/{userName}/history/order/{page}")
-    Call<List<OrderHistory>> getOrderHistory(@Path("userName") String userName, @Path("page") int page, @Query("usertoken") String usertoken);
+    @GET("users/{userName}/history/order")
+    Call<List<OrderHistory>> getOrderHistory(@Path("userName") String userName, @Query("usertoken") String usertoken);
 
 
     // CART MICROSERVICE
@@ -76,7 +79,7 @@ public interface IApiCalls {
 
     // SEARCH MICROSERVICE
 
-    @GET("/search")
-    Call<List<SearchItem>> search(@Query("searchquery") String searchQuery);
+    @POST("/search/{query}")
+    Call<List<SearchItem>> search(@Path("query") String searchQuery);
 
 }

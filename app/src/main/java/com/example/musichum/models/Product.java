@@ -15,7 +15,16 @@ public class Product {
 //    List<String> raters;
 //    long downloads;
     String coverUrl;
+    String songUrl;
     String mood;
+
+    public String getSongUrl() {
+        return songUrl;
+    }
+
+    public void setSongUrl(String songUrl) {
+        this.songUrl = songUrl;
+    }
 
     public String getPid() {
         return pid;

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +39,7 @@ public class UserActivity extends AppCompatActivity implements LoginHistoryAdapt
         setContentView(R.layout.activity_user);
 
         sharedPreferences = getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
 
         retrofit = RetrofitBuilder.getInstance();
         iApiCalls = retrofit.create(IApiCalls.class);
@@ -46,6 +48,15 @@ public class UserActivity extends AppCompatActivity implements LoginHistoryAdapt
         populateLoginHistory(loginHistoryList);
 
         List<OrderHistory> orderHistoryList = new ArrayList<>();
+
+        findViewById(R.id.bt_logout).setOnClickListener(view -> {
+            editor.clear();
+            editor.commit();
+
+
+            startActivity(new Intent(this, HomeActivity.class));
+            finish();
+        });
 
 
         if(sharedPreferences.getString("isLoggedIn", "").startsWith(":")){
@@ -58,22 +69,29 @@ public class UserActivity extends AppCompatActivity implements LoginHistoryAdapt
             TextView tvEmail = findViewById(R.id.tv_email);
             TextView tvName = findViewById(R.id.tv_name);
 
+            Log.d("USERDETAILS", "onCreate: logged in username " +sharedPreferences.getString("isLoggedIn", ""));
             Call<User> response = iApiCalls.getUserDetails(sharedPreferences.getString("isLoggedIn", ""), sharedPreferences.getString("usertoken", ""));
             response.enqueue(new Callback<User>() {
                 @Override
                 public void onResponse(Call<User> call, Response<User> response) {
-                    User user = response.body();
-                    tvUsername.setText(user.getUserName());
-                    tvEmail.setText(user.getEmail());
-                    tvName.setText(user.getFirstName() +" " +user.getLastName());
+                    if(response.code() == 200){
+                        Log.d("USERDETAILS", "onResponse: " +response.body().getUserName());
+                        User user = response.body();
+                        tvUsername.setText(user.getUserName());
+                        tvEmail.setText(user.getEmail());
+                        tvName.setText(user.getFirstName() + " " + user.getLastName());
 
-                    findViewById(R.id.bt_update).setOnClickListener(view -> {
-                        Intent intent = new Intent(UserActivity.this, UpdateActivity.class);
-                        intent.putExtra("emailID", user.getEmail());
-                        intent.putExtra("firstName", user.getFirstName());
-                        intent.putExtra("lastName", user.getLastName());
-                        startActivity(intent);
-                    });
+                        findViewById(R.id.bt_update).setOnClickListener(view -> {
+                            Intent intent = new Intent(UserActivity.this, UpdateActivity.class);
+                            intent.putExtra("emailID", user.getEmail());
+                            intent.putExtra("firstName", user.getFirstName());
+                            intent.putExtra("lastName", user.getLastName());
+                            startActivity(intent);
+                        });
+                    }
+                    else {
+                        Toast.makeText(UserActivity.this, "Error " +response.code() +" while fetching details.", Toast.LENGTH_LONG).show();
+                    }
                 }
 
                 @Override
@@ -90,15 +108,12 @@ public class UserActivity extends AppCompatActivity implements LoginHistoryAdapt
         String username = sharedPreferences.getString("isLoggedIn", "");
         String usertoken = sharedPreferences.getString("usertoken", "");
 
-        Call<List<LoginHistory>> responses = iApiCalls.getLoginHistory(username, 0, usertoken);
+        Call<List<LoginHistory>> responses = iApiCalls.getLoginHistory(username, usertoken);
 
         responses.enqueue(new Callback<List<LoginHistory>>() {
             @Override
             public void onResponse(Call<List<LoginHistory>> call, Response<List<LoginHistory>> response) {
-                if(response == null){
-                    Toast.makeText(UserActivity.this, "Couldn't fetch login data", Toast.LENGTH_LONG).show();
-                }
-                else{
+                if(response.body() != null){
                     for(LoginHistory loginHistory : response.body()){
                         loginHistories.add(loginHistory);
                     }
@@ -107,6 +122,9 @@ public class UserActivity extends AppCompatActivity implements LoginHistoryAdapt
                     LoginHistoryAdapter loginHistoryAdapter = new LoginHistoryAdapter(loginHistories, UserActivity.this);
                     rvCart.setLayoutManager(new LinearLayoutManager(UserActivity.this));
                     rvCart.setAdapter(loginHistoryAdapter);
+                }
+                else{
+                    Toast.makeText(UserActivity.this, "Couldn't fetch login data. Error " +response.code(), Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -121,7 +139,7 @@ public class UserActivity extends AppCompatActivity implements LoginHistoryAdapt
         String username = sharedPreferences.getString("isLoggedIn", "");
         String usertoken = sharedPreferences.getString("usertoken", "");
 
-        Call<List<OrderHistory>> responses = iApiCalls.getOrderHistory(username, 0, usertoken);
+        Call<List<OrderHistory>> responses = iApiCalls.getOrderHistory(username, usertoken);
 
         responses.enqueue(new Callback<List<OrderHistory>>() {
             @Override

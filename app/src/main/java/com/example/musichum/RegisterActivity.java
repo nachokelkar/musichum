@@ -5,27 +5,26 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.musichum.models.SpotifyUser;
 import com.example.musichum.models.User;
 import com.example.musichum.network.IApiCalls;
+import com.example.musichum.network.ISpotifyAPI;
 import com.example.musichum.networkmanager.RetrofitBuilder;
+import com.example.musichum.networkmanager.SpotifyRetrofit;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.spotify.sdk.android.auth.AuthorizationRequest;
-import com.spotify.sdk.android.auth.AuthorizationClient;
-import com.spotify.sdk.android.auth.AuthorizationResponse;
-import com.spotify.android.appremote.api.ConnectionParams;
-import com.spotify.android.appremote.api.Connector;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -34,15 +33,13 @@ import retrofit2.Retrofit;
 
 public class RegisterActivity extends AppCompatActivity  {
 
-    private static final int RC_SIGN_IN = 9001;
+    private static final int RC_GOOGLE = 9001;
 
     private static final String CLIENT_ID = "c317e8cc724d454e8c636c9cfaecbb6e";
 
-    private static final String REDIRECT_URI = "http://localhost:8888";
+    private static final String REDIRECT_URI = "com-example-musichum://callback";
 
-    private static final int REQUEST_CODE = 1337;
-
-    private SpotifyAppRemote mSpotifyAppRemote;
+    private static final int RC_SPOTIFY = 1337;
 
 
     EditText et_username;
@@ -76,11 +73,12 @@ public class RegisterActivity extends AppCompatActivity  {
             startActivity(new Intent(this, LoginActivity.class));
         });
 
-//        AuthorizationRequest.Builder builder = new AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI);
-//        builder.setScopes(new String[]{"user-read-private"});
-//        AuthorizationRequest request = builder.build();
-//        AuthorizationClient.openLoginActivity(this, REQUEST_CODE, request);
-
+        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
+        builder.setScopes(new String[]{"user-read-private user-read-email"});
+        AuthenticationRequest request = builder.build();
+        findViewById(R.id.bt_spotifySignIn).setOnClickListener(view -> {
+            AuthenticationClient.openLoginActivity(this, RC_SPOTIFY, request);
+        });
 
 
         findViewById(R.id.bt_registerButton).setOnClickListener(view -> {
@@ -118,7 +116,7 @@ public class RegisterActivity extends AppCompatActivity  {
 
         findViewById(R.id.bt_googleSignIn).setOnClickListener(view -> {
             Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-            startActivityForResult(signInIntent, RC_SIGN_IN);
+            startActivityForResult(signInIntent, RC_GOOGLE);
         });
     }
 
@@ -126,43 +124,48 @@ public class RegisterActivity extends AppCompatActivity  {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == RC_SIGN_IN){
+        if(requestCode == RC_GOOGLE){
             Task<GoogleSignInAccount> signInAccountTask= GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(signInAccountTask);
         }
 
-//        else if (requestCode == REQUEST_CODE) {
-//            AuthorizationResponse response = AuthorizationClient.getResponse(resultCode, data);
-//            response.
-//
-//            if (response.getType() == AuthorizationResponse.Type.TOKEN) {
-//                ConnectionParams connectionParams =
-//                        new ConnectionParams.Builder(CLIENT_ID)
-//                                .setRedirectUri(REDIRECT_URI)
-//                                .showAuthView(true)
-//                                .build();
-//
-//                SpotifyAppRemote.connect(this, connectionParams,
-//                        new Connector.ConnectionListener() {
-//
-//                            @Override
-//                            public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-//                                mSpotifyAppRemote = spotifyAppRemote;
-//                                Log.d("MainActivity", "Connected! Yay!");
-//
-//                                // Now you can start interacting with App Remote
-//                                mSpotifyAppRemote.getUserApi().;
-//                            }
-//
-//                            @Override
-//                            public void onFailure(Throwable throwable) {
-//                                Log.e("MainActivity", throwable.getMessage(), throwable);
-//
-//                                // Something went wrong when attempting to connect! Handle errors here
-//                            }
-//                        });
-//            }
-//        }
+        else if (requestCode == RC_SPOTIFY) {
+            AuthenticationResponse authorizationResponse = AuthenticationClient.getResponse(resultCode, data);
+
+            Log.d("Spotify", "onActivityResult: " +authorizationResponse.getError());
+            Log.d("Spotify", "onActivityResult: Auth response " +authorizationResponse.getCode());
+            Log.d("Spotify auth token", "Auth token " +authorizationResponse.getAccessToken());
+
+            if (authorizationResponse.getType() == AuthenticationResponse.Type.TOKEN) {
+                Log.d("Spotfy", "onActivityResult: AUTH COMPLETE");
+                Retrofit spotifyRetrofit = SpotifyRetrofit.getInstance();
+                ISpotifyAPI spotifyAPI = spotifyRetrofit.create(ISpotifyAPI.class);
+
+                Call<SpotifyUser> spotifyUserCall = spotifyAPI.getUserDetailsSpotify(authorizationResponse.getAccessToken());
+
+                spotifyUserCall.enqueue(new Callback<SpotifyUser>() {
+                    @Override
+                    public void onResponse(Call<SpotifyUser> call, Response<SpotifyUser> response) {
+                        Log.d("Spotify", "User Call Made: " +response.body().toString());
+
+                        if(response.body()!=null && response.code()==200){
+                            et_email.findViewById(R.id.et_email);
+                            et_firstName.findViewById(R.id.et_firstName);
+                            et_lastName.findViewById(R.id.et_lastName);
+
+                            et_email.setText(response.body().getEmail());
+                            et_firstName.setText(response.body().getDisplay_name().split(" ")[0]);
+                            et_lastName.setText(response.body().getDisplay_name().split(" ")[1]);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<SpotifyUser> call, Throwable t) {
+                        Toast.makeText(RegisterActivity.this, "Failed.", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        }
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask){
@@ -185,11 +188,11 @@ public class RegisterActivity extends AppCompatActivity  {
             et_lastName.setText(account.getFamilyName());
 
             findViewById(R.id.bt_googleSignIn).setVisibility(View.GONE);
-            findViewById(R.id.bt_facebookSignIn).setVisibility(View.GONE);
+            findViewById(R.id.bt_spotifySignIn).setVisibility(View.GONE);
             Toast.makeText(this, "Google authentication complete.\nEnter a username and password for your profile.", Toast.LENGTH_LONG).show();
         }
         else {
-            findViewById(R.id.bt_facebookSignIn).setVisibility(View.VISIBLE);
+            findViewById(R.id.bt_spotifySignIn).setVisibility(View.VISIBLE);
             findViewById(R.id.bt_googleSignIn).setVisibility(View.VISIBLE);
         }
     }

@@ -46,7 +46,7 @@ public class StockRecyclerAdapter extends RecyclerView.Adapter<StockRecyclerAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         InventoryItem inventoryItem = inventoryItems.get(position);
         holder.tvDistName.setText(inventoryItem.getDid());
-        holder.tvCost.setText((int) inventoryItem.getCost());
+        holder.tvCost.setText(inventoryItem.getCost()+"");
 
         Retrofit retrofit = TempCartRetrofitBuilder.getInstance();
         IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
@@ -77,7 +77,7 @@ public class StockRecyclerAdapter extends RecyclerView.Adapter<StockRecyclerAdap
 
                     @Override
                     public void onFailure(Call<Void> call, Throwable t) {
-
+                        Toast.makeText(v.getContext(), "FAIL", Toast.LENGTH_LONG).show();
                     }
                 });
 

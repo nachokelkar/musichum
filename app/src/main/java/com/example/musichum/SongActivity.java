@@ -140,6 +140,7 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
             public void onFailure(Call<List<InventoryItem>> call, Throwable t) {
 
                 InventoryItem inventoryItem = new InventoryItem();
+                inventoryItem.setType(TYPE_SONG);
                 inventoryItem.setDid(did);
                 inventoryItem.setCost(cost);
 

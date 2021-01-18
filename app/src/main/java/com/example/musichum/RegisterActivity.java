@@ -56,11 +56,11 @@ public class RegisterActivity extends AppCompatActivity  {
         Retrofit retrofit = RetrofitBuilder.getInstance();
         IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
 
-        EditText et_username = findViewById(R.id.et_username);
-        EditText et_email = findViewById(R.id.et_email);
-        EditText et_firstName = findViewById(R.id.et_firstName);
-        EditText et_lastName = findViewById(R.id.et_lastName);
-        EditText et_password = findViewById(R.id.et_password);
+        et_username = findViewById(R.id.et_username);
+        et_email = findViewById(R.id.et_email);
+        et_firstName = findViewById(R.id.et_firstName);
+        et_lastName = findViewById(R.id.et_lastName);
+        et_password = findViewById(R.id.et_password);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -137,30 +137,26 @@ public class RegisterActivity extends AppCompatActivity  {
         else if (requestCode == RC_SPOTIFY) {
             AuthenticationResponse authorizationResponse = AuthenticationClient.getResponse(resultCode, data);
 
-            Log.d("Spotify", "onActivityResult: " +authorizationResponse.getError());
-            Log.d("Spotify", "onActivityResult: Auth response " +authorizationResponse.getCode());
-            Log.d("Spotify auth token", "Auth token " +authorizationResponse.getAccessToken());
-
             if (authorizationResponse.getType() == AuthenticationResponse.Type.TOKEN) {
-                Log.d("Spotfy", "onActivityResult: AUTH COMPLETE");
+
                 Retrofit spotifyRetrofit = SpotifyRetrofit.getInstance();
                 ISpotifyAPI spotifyAPI = spotifyRetrofit.create(ISpotifyAPI.class);
 
-                Call<SpotifyUser> spotifyUserCall = spotifyAPI.getUserDetailsSpotify(authorizationResponse.getAccessToken());
+                Call<SpotifyUser> spotifyUserCall = spotifyAPI.getUserDetailsSpotify("Bearer " +authorizationResponse.getAccessToken());
 
                 spotifyUserCall.enqueue(new Callback<SpotifyUser>() {
                     @Override
                     public void onResponse(Call<SpotifyUser> call, Response<SpotifyUser> response) {
-                        Log.d("Spotify", "User Call Made: " +response.body().toString());
 
-                        if(response.body()!=null && response.code()==200){
-                            et_email.findViewById(R.id.et_email);
-                            et_firstName.findViewById(R.id.et_firstName);
-                            et_lastName.findViewById(R.id.et_lastName);
-
+                        if(response.isSuccessful()){
                             et_email.setText(response.body().getEmail());
-                            et_firstName.setText(response.body().getDisplay_name().split(" ")[0]);
-                            et_lastName.setText(response.body().getDisplay_name().split(" ")[1]);
+                            et_username.setText(response.body().getDisplay_name());
+
+                            findViewById(R.id.bt_googleSignIn).setVisibility(View.GONE);
+                            findViewById(R.id.bt_spotifySignIn).setVisibility(View.GONE);
+                        }
+                        else{
+                            Log.d("response", "onResponse: " +response.code());
                         }
                     }
 

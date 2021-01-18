@@ -1,6 +1,9 @@
 package com.example.musichum.adapter;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musichum.R;
+import com.example.musichum.models.CartWrapper;
 import com.example.musichum.models.InventoryItem;
 import com.example.musichum.network.IApiCalls;
 import com.example.musichum.networkmanager.RetrofitBuilder;
@@ -48,13 +52,22 @@ public class StockRecyclerAdapter extends RecyclerView.Adapter<StockRecyclerAdap
         holder.tvDistName.setText(inventoryItem.getDid());
         holder.tvCost.setText(inventoryItem.getCost()+"");
 
-        Retrofit retrofit = TempCartRetrofitBuilder.getInstance();
-        IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
+        Retrofit retrofit2 = TempCartRetrofitBuilder.getInstance();
+        IApiCalls iApiCalls = retrofit2.create(IApiCalls.class);
 
         holder.btAddToCart.setOnClickListener(v -> {
-            if(holder.btAddToCart.getText().toString() == "ADD TO CART"){
+            Button bt = holder.btAddToCart;
 
-                Call<Void> response = iApiCalls.addToCart(sharedPreferences.getString("isLoggedIn", ""), inventoryItem.getType(), inventoryItem.getId(), inventoryItem.getDid(), sharedPreferences.getString("usertoken", ""));
+            if(bt.getText().toString().equals("ADD TO CART")){
+                Log.d("TAG", "onBindViewHolder: inside if");
+                CartWrapper cartWrapper = new CartWrapper();
+                cartWrapper.setDid(inventoryItem.getDid());
+                cartWrapper.setType(inventoryItem.getType());
+                cartWrapper.setPid(inventoryItem.getId());
+
+                SharedPreferences sharedPreferences1 = ((Activity) v.getContext()).getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
+
+                Call<Void> response = iApiCalls.addToCart(sharedPreferences1.getString("isLoggedIn", ""), cartWrapper);
 
                 response.enqueue(new Callback<Void>() {
                     @Override
@@ -63,15 +76,8 @@ public class StockRecyclerAdapter extends RecyclerView.Adapter<StockRecyclerAdap
                             holder.btAddToCart.setText("REMOVE FROM CART");
                         }
                         else{
-                            holder.btAddToCart.setText("FAILED");
                             Toast.makeText(v.getContext(), "Error " +response.code() +". Please try again later.", Toast.LENGTH_LONG).show();
 
-                            try {
-                                wait(5000);
-                                holder.btAddToCart.setText("ADD TO CART");
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
                         }
                     }
 
@@ -84,7 +90,14 @@ public class StockRecyclerAdapter extends RecyclerView.Adapter<StockRecyclerAdap
             }
 
             else if(holder.btAddToCart.getText().toString() == "REMOVE FROM CART"){
-                Call<Void> response = iApiCalls.deleteFromCart(sharedPreferences.getString("isLoggedIn", ""), inventoryItem.getType(), inventoryItem.getId(), inventoryItem.getDid(), sharedPreferences.getString("usertoken", ""));
+                CartWrapper cartWrapper = new CartWrapper();
+                cartWrapper.setType(inventoryItem.getType());
+                cartWrapper.setPid(inventoryItem.getId());
+                cartWrapper.setDid(inventoryItem.getDid());
+
+                SharedPreferences sharedPreferences2 = holder.rootView.getContext().getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
+
+                Call<Void> response = iApiCalls.deleteFromCart(sharedPreferences2.getString("isLoggedIn", ""), cartWrapper);
 
                 response.enqueue(new Callback<Void>() {
                     @Override

@@ -15,7 +15,7 @@ public class TempCartRetrofitBuilder {
         if (instance == null) {
             synchronized (com.example.musichum.networkmanager.RetrofitBuilder.class) {
                 if (instance == null) {
-                    instance = new Retrofit.Builder().baseUrl("http://10.177.1.134:8000")
+                    instance = new Retrofit.Builder().baseUrl("http://10.177.1.144:8002")
                             .addConverterFactory(GsonConverterFactory.create()).client(new OkHttpClient()).build();
                 }
             }

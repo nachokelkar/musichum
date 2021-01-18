@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musichum.adapter.CartRecyclerAdapter;
 import com.example.musichum.constants.Constants;
+import com.example.musichum.models.Cart;
 import com.example.musichum.models.CartItem;
 import com.example.musichum.network.IApiCalls;
 import com.example.musichum.networkmanager.RetrofitBuilder;
@@ -36,9 +38,13 @@ public class CartActivity extends AppCompatActivity implements CartRecyclerAdapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
         List<CartItem> cartItemList = new ArrayList<>();
-        populateCart(cartItemList);
+        populateCart(cartItemList, this);
         sharedPreferences = getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
+
+        findViewById(R.id.bt_home).setOnClickListener(view -> {
+            startActivity(new Intent(this, HomeActivity.class));
+        });
 
         findViewById(R.id.bt_checkout).setOnClickListener(view -> {
             if(sharedPreferences.getString("isLoggedIn", "").startsWith(":")){
@@ -65,25 +71,37 @@ public class CartActivity extends AppCompatActivity implements CartRecyclerAdapt
 
     }
 
-    private void populateCart(List<CartItem> cartItems){
-        sharedPreferences = getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
+    private void populateCart(List<CartItem> cartItems, CartActivity cartActivity){
+        sharedPreferences = cartActivity.getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
         String username = sharedPreferences.getString("isLoggedIn", "");
         String usertoken = sharedPreferences.getString("usertoken", "");
+        Log.d("Populate cart", "populateCart: " +username);
 
-        findViewById(R.id.bt_home).setOnClickListener(view -> {
-            startActivity(new Intent(this, HomeActivity.class));
-        });
+        Retrofit retrofit2 = TempCartRetrofitBuilder.getInstance();
+        IApiCalls iApiCalls2 = retrofit2.create(IApiCalls.class);
+        Call<Cart> responses = iApiCalls2.getCart(username);
 
-        Call<List<CartItem>> responses = iApiCalls.getCart(username, usertoken);
-
-        responses.enqueue(new Callback<List<CartItem>>() {
+        responses.enqueue(new Callback<Cart>() {
             @Override
-            public void onResponse(Call<List<CartItem>> call, Response<List<CartItem>> response) {
+            public void onResponse(Call<Cart> call, Response<Cart> response) {
+
                 if(response.code() == 200 && response.body() != null){
-                    for (CartItem cartItem : response.body()) {
+
+                    List<CartItem> cartItemList = response.body().getCartItemList();
+                    boolean inStock = true;
+
+                    for (CartItem cartItem : cartItemList) {
                         cartItems.add(cartItem);
+                        if(cartItem.getCost() == -1){
+                            inStock = false;
+                        }
                     }
+
                     findViewById(R.id.bt_checkout).setEnabled(true);
+
+                    if(cartItemList.size() == 0 || inStock == false){
+                        findViewById(R.id.bt_checkout).setEnabled(false);
+                    }
                     RecyclerView rvCart = findViewById(R.id.rv_cart);
                     CartRecyclerAdapter cartRecyclerAdapter = new CartRecyclerAdapter(cartItems, CartActivity.this);
                     rvCart.setLayoutManager(new LinearLayoutManager(CartActivity.this));
@@ -94,8 +112,9 @@ public class CartActivity extends AppCompatActivity implements CartRecyclerAdapt
                 }
             }
 
+
             @Override
-            public void onFailure(Call<List<CartItem>> call, Throwable t) {
+            public void onFailure(Call<Cart> call, Throwable t) {
                 Toast.makeText(CartActivity.this, "Failed to get cart. Please try again later.", Toast.LENGTH_LONG).show();
             }
         });

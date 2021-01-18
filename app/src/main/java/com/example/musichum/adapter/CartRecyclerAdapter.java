@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.example.musichum.CartActivity;
 import com.example.musichum.R;
 import com.example.musichum.models.CartItem;
+import com.example.musichum.models.CartWrapper;
 import com.example.musichum.network.IApiCalls;
 import com.example.musichum.networkmanager.RetrofitBuilder;
 import com.example.musichum.networkmanager.TempCartRetrofitBuilder;
@@ -50,7 +52,7 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         CartItem cartItem = cartItemList.get(position);
-        holder.tvCost.setText(cartItem.getCost());
+//        holder.tvCost.setText(cartItem.getCost()+"");
         holder.tvType.setText(cartItem.getType());
         holder.tvAlbum.setText(cartItem.getAlbumName());
         holder.tvArtist.setText(cartItem.getArtist());
@@ -65,14 +67,24 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
             IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
             SharedPreferences sharedPreferences = view.getContext().getSharedPreferences("com.example.musichum", Context.MODE_PRIVATE);
 
-            Call<Void> response = iApiCalls.deleteFromCart(sharedPreferences.getString("isLoggedIn", ""), cartItem.getType(), cartItem.getId(), cartItem.getDid(), sharedPreferences.getString("usertoken", ""));
+            CartWrapper cartWrapper = new CartWrapper();
+            cartWrapper.setType(cartItem.getType());
+            cartWrapper.setPid(cartItem.getId());
+            cartWrapper.setDid(cartItem.getDid());
+
+            Call<Void> response = iApiCalls.deleteFromCart(sharedPreferences.getString("isLoggedIn", ""), cartWrapper);
 
             response.enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
-
-                    view.getContext().startActivity(new Intent(view.getContext(), CartActivity.class));
-                    ((Activity)(view.getContext())).finish();
+                    if(response.code()==200){
+                        Log.d("YEET", "onResponse: DELEET");
+                        view.getContext().startActivity(new Intent(view.getContext(), CartActivity.class));
+                        ((Activity)(view.getContext())).finish();
+                    }
+                    else{
+                        Toast.makeText(view.getContext(), "Error " +response.code() +". Please try again later.", Toast.LENGTH_LONG);
+                    }
                 }
 
                 @Override
@@ -81,6 +93,14 @@ public class CartRecyclerAdapter extends RecyclerView.Adapter<CartRecyclerAdapte
                 }
             });
         });
+
+        if(cartItem.getCost() == -1){
+            holder.tvCost.setText("Out of stock");
+        }
+        else{
+            holder.tvCost.setText(cartItem.getCost()+"");
+        }
+
     }
 
     public interface CartItemInterface{

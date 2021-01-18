@@ -58,15 +58,26 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<LoginToken> call, Response<LoginToken> response) {
                         if(response.code() == 200){
-                            editor.putString("isLoggedIn", etUserName.getText().toString().trim());
-                            Log.d("LOGIN", "onResponse: Saved username as " +sharedPreferences.getString("isLoggedIn", ""));
-                            editor.putString("usertoken", response.body().getUsertoken());
-                            editor.commit();
-                            Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                            Call<Void> mergeResponse = iApiCalls.mergeCart(etUserName.getText().toString().trim(), sharedPreferences.getString("isLoggedIn", ""));
+                            mergeResponse.enqueue(new Callback<Void>() {
+                                @Override
+                                public void onResponse(Call<Void> call, Response<Void> response1) {
+                                    editor.putString("isLoggedIn", etUserName.getText().toString().trim());
+                                    Log.d("LOGIN - MERGE", "onResponse: Saved username as " +sharedPreferences.getString("isLoggedIn", ""));
+                                    editor.putString("usertoken", response.body().getUsertoken());
+                                    editor.commit();
+                                    Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_LONG).show();
+                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
 
-                            startActivity(intent);
-                            finish();
+                                    startActivity(intent);
+                                    finish();
+                                }
+
+                                @Override
+                                public void onFailure(Call<Void> call, Throwable t) {
+                                    Log.d("LOGIN - MERGE", "onFailure: Merge cart failed");
+                                }
+                            });
                         }
                         else if(response.code() == 401){
                             Toast.makeText(LoginActivity.this, "Incorrect username or password", Toast.LENGTH_LONG).show();

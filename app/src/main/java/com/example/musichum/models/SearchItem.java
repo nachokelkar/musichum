@@ -10,14 +10,14 @@ public class SearchItem {
     String title;
     float cost;
     String songUrl;
-    String distId;
+    String did;
 
-    public String getDistId() {
-        return distId;
+    public String getDid() {
+        return did;
     }
 
-    public void setDistId(String distId) {
-        this.distId = distId;
+    public void setDid(String did) {
+        this.did = did;
     }
 
     public String getSongUrl() {

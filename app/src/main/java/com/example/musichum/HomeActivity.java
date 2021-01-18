@@ -169,7 +169,7 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
         intent.putExtra(ARTIST, searchItem.getArtist());
         intent.putExtra(COST, searchItem.getCost());
         intent.putExtra(SONG_URL, searchItem.getSongUrl());
-        intent.putExtra(DIST_ID, searchItem.getDistId());
+        intent.putExtra(DIST_ID, searchItem.getDid());
 
         startActivity(intent);
     }

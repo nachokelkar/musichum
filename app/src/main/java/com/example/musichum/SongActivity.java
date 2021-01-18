@@ -6,6 +6,7 @@ import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -109,21 +110,25 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
                 .into(ivCover);
 
         List<InventoryItem> inventoryItemList = new ArrayList<>();
-        generateInventory(inventoryItemList, pid);
+        generateInventory(inventoryItemList, pid, this);
 
     }
 
-    private void generateInventory(List<InventoryItem> inventoryItems, String pid){
-        Retrofit retrofit = TempCartRetrofitBuilder.getInstance();
-        IApiCalls iApiCalls = retrofit.create(IApiCalls.class);
+    private void generateInventory(List<InventoryItem> inventoryItems, String pid, SongActivity songActivity){
+        Retrofit retrofit2 = TempCartRetrofitBuilder.getInstance();
+        IApiCalls iApiCalls = retrofit2.create(IApiCalls.class);
 
         Call<List<InventoryItem>> responses = iApiCalls.getInventory(pid, TYPE_SONG);
         responses.enqueue(new Callback<List<InventoryItem>>() {
             @Override
             public void onResponse(Call<List<InventoryItem>> call, Response<List<InventoryItem>> response) {
+                Log.d("RETROFIT CALL", "onResponse: RECEIVED A RESPONSE");
                 if(response.code() == 200 && response.body() != null){
+                    Log.d("INVENTORY", "onResponse: Received inventory");
+
                     for(InventoryItem inventoryItem : response.body()){
                         inventoryItems.add(inventoryItem);
+                        Log.d("INVENTITEM", "onResponse: " +inventoryItem.getId());
                     }
 
                     RecyclerView rvDistributors = findViewById(R.id.rv_stock);
@@ -132,17 +137,35 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
                     rvDistributors.setAdapter(stockRecyclerAdapter);
                 }
                 else{
-                    Toast.makeText(SongActivity.this, "Error " +response.code(), Toast.LENGTH_LONG).show();
+                    InventoryItem inventoryItem = new InventoryItem();
+                    inventoryItem.setId(getIntent().getStringExtra(PID));
+                    Log.d("SONGACTIVITY - ", "onFailure ERORR: " +inventoryItem.getId());
+                    inventoryItem.setType(TYPE_SONG);
+                    inventoryItem.setDid(getIntent().getStringExtra(DIST_ID));
+                    inventoryItem.setCost(getIntent().getFloatExtra(COST, -1));
+
+                    inventoryItems.add(inventoryItem);
+                    RecyclerView rvDistributors = findViewById(R.id.rv_stock);
+                    StockRecyclerAdapter stockRecyclerAdapter = new StockRecyclerAdapter(inventoryItems, SongActivity.this);
+                    rvDistributors.setLayoutManager(new LinearLayoutManager(SongActivity.this));
+                    rvDistributors.setAdapter(stockRecyclerAdapter);
+
+//                    Toast.makeText(SongActivity.this, "Error " +response.code(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<InventoryItem>> call, Throwable t) {
 
+                Log.d("TAG", "onFailure: " + songActivity.getIntent().getStringExtra(PID));
+
                 InventoryItem inventoryItem = new InventoryItem();
+                inventoryItem.setId(SongActivity.this.getIntent().getStringExtra(PID));
                 inventoryItem.setType(TYPE_SONG);
-                inventoryItem.setDid(did);
-                inventoryItem.setCost(cost);
+                inventoryItem.setDid(getIntent().getStringExtra(DIST_ID));
+                inventoryItem.setCost(getIntent().getFloatExtra(COST, -1));
+                Log.d("TAG", "onFailure: " +inventoryItem.getId());
+
 
                 inventoryItems.add(inventoryItem);
                 RecyclerView rvDistributors = findViewById(R.id.rv_stock);

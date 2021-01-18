@@ -1,7 +1,6 @@
 package com.example.musichum.adapter;
 
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +62,7 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
 
                 case TYPE_SONG:
                     intent = new Intent(v.getContext(), SongActivity.class);
-                    intent.putExtra(AID, searchItem.getId());
+                    intent.putExtra(PID, searchItem.getId());
                     break;
 
                 default:
@@ -76,7 +75,7 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
             intent.putExtra(ARTIST, searchItem.getArtist());
             intent.putExtra(COST, searchItem.getCost());
             intent.putExtra(SONG_URL, searchItem.getSongUrl());
-            intent.putExtra(DIST_ID, searchItem.getDistId());
+            intent.putExtra(DIST_ID, searchItem.getDid());
 
             v.getContext().startActivity(intent);
 

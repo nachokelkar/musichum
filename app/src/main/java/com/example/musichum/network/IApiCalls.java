@@ -54,7 +54,7 @@ public interface IApiCalls {
     Call<Void> addToCart(@Path("userName") String userName, @Body CartWrapper cartWrapper);
 
     @GET("/cart/{userName}/get")
-    Call<Cart> getCart(@Path("userName") String userName);
+    Call<List<CartItem>> getCart(@Path("userName") String userName);
 
     @POST("/cart/{userName}/delete")
     Call<Void> deleteFromCart(@Path("userName") String userName, @Body CartWrapper cartWrapper);

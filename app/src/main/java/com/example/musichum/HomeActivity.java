@@ -122,6 +122,7 @@ public class HomeActivity extends AppCompatActivity implements SearchRecyclerAda
                         searchItem.setId(product.getPid());
                         searchItem.setTitle(product.getTitle());
                         searchItem.setCost(product.getLowestCost());
+                        searchItem.setSongUrl(product.getSongUrl());
                         searchItemList.add(searchItem);
                     }
 

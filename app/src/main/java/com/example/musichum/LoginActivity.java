@@ -14,6 +14,7 @@ import com.example.musichum.models.LoginToken;
 import com.example.musichum.models.LoginWrapper;
 import com.example.musichum.network.IApiCalls;
 import com.example.musichum.networkmanager.RetrofitBuilder;
+import com.example.musichum.networkmanager.TempCartRetrofitBuilder;
 import com.facebook.login.Login;
 
 import retrofit2.Call;
@@ -58,12 +59,20 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<LoginToken> call, Response<LoginToken> response) {
                         if(response.code() == 200){
-                            Call<Void> mergeResponse = iApiCalls.mergeCart(etUserName.getText().toString().trim(), sharedPreferences.getString("isLoggedIn", ""));
+                            Retrofit retrofit1 = TempCartRetrofitBuilder.getInstance();
+                            IApiCalls iApiCalls1 = retrofit1.create(IApiCalls.class);
+
+                            Call<Void> mergeResponse = iApiCalls1.mergeCart(etUserName.getText().toString().trim(), sharedPreferences.getString("isLoggedIn", ""));
                             mergeResponse.enqueue(new Callback<Void>() {
                                 @Override
                                 public void onResponse(Call<Void> call, Response<Void> response1) {
+                                    if(response.code()==200){
+                                        Log.d("LOGIN - MERGE", "onResponse: Saved username as " + sharedPreferences.getString("isLoggedIn", ""));
+                                    }
+                                    else{
+                                        Log.d("LOGIN - MERGE", "IMPOSTOR" +response.code());
+                                    }
                                     editor.putString("isLoggedIn", etUserName.getText().toString().trim());
-                                    Log.d("LOGIN - MERGE", "onResponse: Saved username as " +sharedPreferences.getString("isLoggedIn", ""));
                                     editor.putString("usertoken", response.body().getUsertoken());
                                     editor.commit();
                                     Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_LONG).show();

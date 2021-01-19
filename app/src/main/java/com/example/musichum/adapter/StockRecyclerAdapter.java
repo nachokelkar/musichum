@@ -50,7 +50,6 @@ public class StockRecyclerAdapter extends RecyclerView.Adapter<StockRecyclerAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         InventoryItem inventoryItem = inventoryItems.get(position);
         holder.tvDistName.setText(inventoryItem.getDid());
-        holder.tvCost.setText(inventoryItem.getCost()+"");
 
         Retrofit retrofit2 = TempCartRetrofitBuilder.getInstance();
         IApiCalls iApiCalls = retrofit2.create(IApiCalls.class);
@@ -86,6 +85,14 @@ public class StockRecyclerAdapter extends RecyclerView.Adapter<StockRecyclerAdap
                         Toast.makeText(v.getContext(), "FAIL", Toast.LENGTH_LONG).show();
                     }
                 });
+
+                if(inventoryItem.getCost() == -1){
+                    holder.tvCost.setText("Out of stock");
+                    holder.btAddToCart.setVisibility(View.GONE);
+                }
+                else {
+                    holder.tvCost.setText(inventoryItem.getCost()+"");
+                }
 
             }
 

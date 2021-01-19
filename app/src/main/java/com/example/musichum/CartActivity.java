@@ -79,18 +79,17 @@ public class CartActivity extends AppCompatActivity implements CartRecyclerAdapt
 
         Retrofit retrofit2 = TempCartRetrofitBuilder.getInstance();
         IApiCalls iApiCalls2 = retrofit2.create(IApiCalls.class);
-        Call<Cart> responses = iApiCalls2.getCart(username);
+        Call<List<CartItem>> responses = iApiCalls2.getCart(username);
 
-        responses.enqueue(new Callback<Cart>() {
+        responses.enqueue(new Callback<List<CartItem>>() {
             @Override
-            public void onResponse(Call<Cart> call, Response<Cart> response) {
+            public void onResponse(Call<List<CartItem>> call, Response<List<CartItem>> response) {
 
                 if(response.code() == 200 && response.body() != null){
 
-                    List<CartItem> cartItemList = response.body().getCartItemList();
                     boolean inStock = true;
 
-                    for (CartItem cartItem : cartItemList) {
+                    for (CartItem cartItem : response.body()) {
                         cartItems.add(cartItem);
                         if(cartItem.getCost() == -1){
                             inStock = false;
@@ -99,7 +98,7 @@ public class CartActivity extends AppCompatActivity implements CartRecyclerAdapt
 
                     findViewById(R.id.bt_checkout).setEnabled(true);
 
-                    if(cartItemList.size() == 0 || inStock == false){
+                    if(response.body().size() == 0 || inStock == false){
                         findViewById(R.id.bt_checkout).setEnabled(false);
                     }
                     RecyclerView rvCart = findViewById(R.id.rv_cart);
@@ -114,7 +113,7 @@ public class CartActivity extends AppCompatActivity implements CartRecyclerAdapt
 
 
             @Override
-            public void onFailure(Call<Cart> call, Throwable t) {
+            public void onFailure(Call<List<CartItem>> call, Throwable t) {
                 Toast.makeText(CartActivity.this, "Failed to get cart. Please try again later.", Toast.LENGTH_LONG).show();
             }
         });

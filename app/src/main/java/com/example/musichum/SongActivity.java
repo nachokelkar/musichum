@@ -7,6 +7,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -44,6 +45,9 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
     String songUrl;
     String did;
 
+    boolean shouldPlay = true;
+    boolean isPlaying = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Retrofit retrofit = RetrofitBuilder.getInstance();
@@ -68,11 +72,32 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
         TextView tvAlbum = findViewById(R.id.tv_albumName);
         TextView year = findViewById(R.id.tv_year);
         ImageView ivCover = findViewById(R.id.iv_coverArt);
-        String songURL = songUrl;
 
+        MediaPlayer mp = new MediaPlayer();
+
+        try {
+            mp.setDataSource(songUrl);
+            mp.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(mp.getCurrentPosition()<3000){
+            shouldPlay = true;
+        }
         findViewById(R.id.bt_media).setOnClickListener(view -> {
 
-        });
+            if(!isPlaying && shouldPlay){
+                mp.start();
+                ((Button)findViewById(R.id.bt_media)).setText("Pause");
+            }
+            else{
+                mp.pause();
+                ((Button)findViewById(R.id.bt_media)).setText("Play");
+            }
+            isPlaying = !isPlaying;
+
+            });
 
         Glide.with(this)
                 .load(coverUrl)
@@ -176,6 +201,10 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
                 Toast.makeText(SongActivity.this, "Error fetching distributors.\nPlease try again later.", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void updateUI(){
+
     }
 
     @Override

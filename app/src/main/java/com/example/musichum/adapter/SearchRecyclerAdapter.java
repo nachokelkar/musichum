@@ -1,6 +1,7 @@
 package com.example.musichum.adapter;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,6 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         SearchItem searchItem = searchItems.get(position);
 
-        holder.tvCost.setText(searchItem.getCost()+"");
         holder.tvType.setText(searchItem.getType());
         holder.tvAlbum.setText(searchItem.getAlbum());
         holder.tvArtist.setText(searchItem.getArtist());
@@ -69,12 +69,20 @@ public class SearchRecyclerAdapter extends RecyclerView.Adapter<SearchRecyclerAd
                     intent = new Intent(v.getContext(), HomeActivity.class);
             }
 
+            if(searchItem.getCost() == -1){
+                holder.tvCost.setText("Out of stock");
+            }
+            else{
+                holder.tvCost.setText(searchItem.getCost()+"");
+            }
+
             intent.putExtra(TITLE, searchItem.getTitle());
             intent.putExtra(COVER_URL, searchItem.getCoverUrl());
             intent.putExtra(ALBUM_NAME, searchItem.getAlbum());
             intent.putExtra(ARTIST, searchItem.getArtist());
             intent.putExtra(COST, searchItem.getCost());
             intent.putExtra(SONG_URL, searchItem.getSongUrl());
+            Log.d("ON BINDING", "onBindViewHolder: FOUND SONG URL : " +searchItem.getSongUrl());
             intent.putExtra(DIST_ID, searchItem.getDid());
 
             v.getContext().startActivity(intent);

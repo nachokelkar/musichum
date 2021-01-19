@@ -29,6 +29,7 @@ import com.example.musichum.networkmanager.TempCartRetrofitBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,8 +46,12 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
     String songUrl;
     String did;
 
-    boolean shouldPlay = true;
     boolean isPlaying = false;
+    CountDownTimer countDownTimer;
+    long timeLeft = 20000;
+    boolean finished = false;
+    MediaPlayer mp = new MediaPlayer();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +78,6 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
         TextView year = findViewById(R.id.tv_year);
         ImageView ivCover = findViewById(R.id.iv_coverArt);
 
-        MediaPlayer mp = new MediaPlayer();
-
         try {
             mp.setDataSource(songUrl);
             mp.prepare();
@@ -82,22 +85,11 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
             e.printStackTrace();
         }
 
-        if(mp.getCurrentPosition()<3000){
-            shouldPlay = true;
-        }
         findViewById(R.id.bt_media).setOnClickListener(view -> {
+            startstop();
+        });
 
-            if(!isPlaying && shouldPlay){
-                mp.start();
-                ((Button)findViewById(R.id.bt_media)).setText("Pause");
-            }
-            else{
-                mp.pause();
-                ((Button)findViewById(R.id.bt_media)).setText("Play");
-            }
-            isPlaying = !isPlaying;
 
-            });
 
         Glide.with(this)
                 .load(coverUrl)
@@ -137,6 +129,33 @@ public class SongActivity extends AppCompatActivity implements StockRecyclerAdap
         List<InventoryItem> inventoryItemList = new ArrayList<>();
         generateInventory(inventoryItemList, pid, this);
 
+    }
+
+    private void startstop() {
+        if (!isPlaying && !finished) {
+            mp.start();
+            ((Button) findViewById(R.id.bt_media)).setText("Pause");
+            countDownTimer = new CountDownTimer(timeLeft, 1000) {
+                @Override
+                public void onTick(long l) {
+                    Log.d("Time left", "onTick: " + l);
+                    timeLeft=l;
+                }
+
+                @Override
+                public void onFinish() {
+                    finished = true;
+                    startstop();
+                    Log.d("Finished", "time: " + timeLeft);
+                }
+            }.start();
+        } else {
+            Log.d("Pausing", "Paused because finished:");
+            mp.pause();
+            ((Button) findViewById(R.id.bt_media)).setText("Play");
+            countDownTimer.cancel();
+        }
+        isPlaying = !isPlaying;
     }
 
     private void generateInventory(List<InventoryItem> inventoryItems, String pid, SongActivity songActivity){
